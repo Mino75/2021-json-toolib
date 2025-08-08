@@ -13,7 +13,8 @@
       "type": ["Emulator"]
     },
     {
-      "name": "acrobat reader dc"
+      "name": "acrobat reader dc",
+      "type": ["PDF Reader"]
     },
     {
       "name": "audacity",
@@ -28,7 +29,8 @@
       "type": ["CLI"]
     },
     {
-      "name": "dockertoolbox"
+      "name": "dockertoolbox",
+      "type": ["Containerization"]
     },
     {
       "name": "evernote",
@@ -39,14 +41,16 @@
       "type": ["CLI"]
     },
     {
-      "name": "figma"
+      "name": "figma",
+      "type": ["UI/UX Design"]
     },
     {
       "name": "fileZilla Client",
       "type": ["FTP Client"]
     },
     {
-      "name": "HTTrack Website Copier"
+      "name": "HTTrack Website Copier",
+      "type": ["Web Tools"]
     },
     {
       "name": "Inkscape",
@@ -57,7 +61,8 @@
       "type": ["IDE"]
     },
     {
-      "name": "Kitematic"
+      "name": "Kitematic",
+      "type": ["Containerization"]
     },
     {
       "name": "Opera",
@@ -76,7 +81,8 @@
       "type": ["IDE"]
     },
     {
-      "name": "Node.js"
+      "name": "Node.js",
+      "type": ["Runtime"]
     },
     {
       "name": "Notepad++",
@@ -123,10 +129,12 @@
       "type": ["Media player"]
     },
     {
-      "name": "VUE"
+      "name": "VUE",
+      "type": ["Framework"]
     },
     {
-      "name": "Wampserver64"
+      "name": "Wampserver64",
+      "type": ["Development Server"]
     },
     {
       "name": "WeChat",
@@ -161,7 +169,8 @@
       "type": ["UI/UX Design"]
     },
     {
-      "name": "DockerToolbox"
+      "name": "DockerToolbox",
+      "type": ["Containerization"]
     },
     {
       "name": "Pycharm",
@@ -172,7 +181,8 @@
       "type": ["Graphic Editor"]
     },
     {
-      "name": "GitKraken"
+      "name": "GitKraken",
+      "type": ["Git Client"]
     },
     {
       "name": "TortoiseSVN",
@@ -183,14 +193,16 @@
       "type": ["Git Client"]
     },
     {
-      "name": "Neo4j commmunity"
+      "name": "Neo4j community",
+      "type": ["Database"]
     },
     {
       "name": "7z",
       "type": ["Archiver"]
     },
     {
-      "name": "FSCapture"
+      "name": "FSCapture",
+      "type": ["Screen Capture"]
     },
     {
       "name": "Microsoft Edge",
@@ -209,10 +221,12 @@
       "type": ["Collaboration"]
     },
     {
-      "name": "Scrcpy"
+      "name": "Scrcpy",
+      "type": ["Android Tools"]
     },
     {
-      "name": "mrmemoryscanner"
+      "name": "mrmemoryscanner",
+      "type": ["System Tools"]
     },
     {
       "name": "Keepass",
@@ -231,14 +245,12 @@
       "type": ["Video meeting"]
     },
     {
-      "name": "cmake"
+      "name": "cmake",
+      "type": ["Build Tools"]
     },
     {
       "name": "rkfree",
       "type": ["Keylogger"]
-    },
-    {
-      "name": "VUE"
     },
     {
       "name": "Firefox",
@@ -275,6 +287,26 @@
     {
       "name": "Chrome",
       "type": ["browser"]
+    },
+    {
+      "name": "Docker Desktop",
+      "type": ["Containerization"]
+    },
+    {
+      "name": "Google Keep",
+      "type": ["Note Taking"]
+    },
+    {
+      "name": "Draw.io",
+      "type": ["Diagramming"]
+    },
+    {
+      "name": "GitHub Desktop",
+      "type": ["Git Client"]
+    },
+    {
+      "name": "GitLab",
+      "type": ["Git Platform"]
     }
   ]
 }
