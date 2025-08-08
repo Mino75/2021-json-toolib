@@ -279,11 +279,11 @@
         }
 
         function createTypeFilters() {
-            // Get unique types
+            // Get unique types and normalize to lowercase
             const allTypes = new Set();
             toolsData.tools.forEach(tool => {
                 if (tool.type) {
-                    tool.type.forEach(type => allTypes.add(type));
+                    tool.type.forEach(type => allTypes.add(type.toLowerCase()));
                 }
             });
             
@@ -296,7 +296,8 @@
                 const btn = document.createElement('button');
                 btn.className = 'filter-btn';
                 btn.setAttribute('data-type', type);
-                btn.textContent = type;
+                // Capitalize first letter for display
+                btn.textContent = type.charAt(0).toUpperCase() + type.slice(1);
                 typeFiltersContainer.appendChild(btn);
             });
         }
@@ -322,10 +323,10 @@
             const searchTerm = document.getElementById('searchInput').value.trim();
             let filtered = toolsData.tools;
 
-            // Apply type filter
+            // Apply type filter (normalize to lowercase for comparison)
             if (currentFilter !== 'all') {
                 filtered = filtered.filter(tool => 
-                    tool.type && tool.type.includes(currentFilter)
+                    tool.type && tool.type.some(type => type.toLowerCase() === currentFilter)
                 );
             }
 
@@ -365,7 +366,7 @@
                     <div class="tool-name">${tool.name}</div>
                     <div class="tool-types">
                         ${tool.type ? 
-                            tool.type.map(type => `<span class="type-badge">${type}</span>`).join('') :
+                            tool.type.map(type => `<span class="type-badge">${type.charAt(0).toUpperCase() + type.slice(1)}</span>`).join('') :
                             '<span class="type-badge no-type">No Category</span>'
                         }
                     </div>
