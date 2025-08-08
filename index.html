@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON-Toolib - Tools Database</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .controls {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 15px;
+            font-size: 1rem;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .filter-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: #555;
+            margin-right: 10px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #e1e8ed;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .results-info {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .tool-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .tool-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .tool-types {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .type-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .no-type {
+            background: #95a5a6;
+        }
+
+        .no-results {
+            text-align: center;
+            color: white;
+            font-size: 1.2rem;
+            margin: 40px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .filter-section {
+                justify-content: center;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>JSON-Toolib</h1>
+            <p class="subtitle">Personal Tools Database</p>
+        </header>
+
+        <div class="controls">
+            <input type="text" class="search-bar" id="searchInput" placeholder="Search tools by name (supports regex)...">
+            
+            <div class="filter-section">
+                <span class="filter-label">Filter by type:</span>
+                <button class="filter-btn active" data-type="all">All</button>
+                <div id="typeFilters"></div>
+            </div>
+        </div>
+
+        <div class="results-info" id="resultsInfo"></div>
+
+        <div class="tools-grid" id="toolsGrid"></div>
+
+        <div class="no-results" id="noResults" style="display: none;">
+            No tools found matching your criteria.
+        </div>
+    </div>
+
+    <script>
+        let toolsData = null;
+        let currentFilter = 'all';
+        let filteredTools = [];
+
+        // Loading state management
+        function showLoading() {
+            document.getElementById('toolsGrid').innerHTML = `
+                <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: white;">
+                    <div style="font-size: 1.5rem; margin-bottom: 10px;">Loading tools...</div>
+                    <div style="font-size: 1rem; opacity: 0.8;">Fetching latest data from repository</div>
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            document.getElementById('toolsGrid').innerHTML = `
+                <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: white;">
+                    <div style="font-size: 1.5rem; margin-bottom: 10px; color: #ff6b6b;">⚠️ Error Loading Data</div>
+                    <div style="font-size: 1rem; opacity: 0.8;">${message}</div>
+                    <button onclick="loadToolsData()" style="margin-top: 20px; padding: 10px 20px; background: white; border: none; border-radius: 5px; cursor: pointer;">Retry</button>
+                </div>
+            `;
+        }
+
+        // Load tools data from JSON file
+        async function loadToolsData() {
+            showLoading();
+            
+            try {
+                const response = await fetch('./json-toolib.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const text = await response.text();
+                
+                // Parse the JSON with the db= prefix format
+                let jsonText = text.trim();
+                if (jsonText.startsWith('db=')) {
+                    jsonText = jsonText.substring(3);
+                }
+                
+                toolsData = JSON.parse(jsonText);
+                
+                if (!toolsData || !toolsData.tools || !Array.isArray(toolsData.tools)) {
+                    throw new Error('Invalid JSON structure: expected tools array');
+                }
+                
+                // Initialize the app with loaded data
+                init();
+                
+            } catch (error) {
+                console.error('Error loading tools data:', error);
+                showError(`Failed to load tools database: ${error.message}`);
+            }
+        }
+
+        // Initialize
+        function init() {
+            if (!toolsData || !toolsData.tools) {
+                showError('No tools data available');
+                return;
+            }
+            
+            createTypeFilters();
+            displayTools(toolsData.tools);
+            updateResultsInfo(toolsData.tools.length, toolsData.tools.length);
+            
+            // Event listeners
+            document.getElementById('searchInput').addEventListener('input', handleSearch);
+            
+            // Filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', handleFilterClick);
+            });
+        }
+
+        function createTypeFilters() {
+            // Get unique types
+            const allTypes = new Set();
+            toolsData.tools.forEach(tool => {
+                if (tool.type) {
+                    tool.type.forEach(type => allTypes.add(type));
+                }
+            });
+            
+            const typeFiltersContainer = document.getElementById('typeFilters');
+            // Clear existing filters
+            typeFiltersContainer.innerHTML = '';
+            
+            const sortedTypes = Array.from(allTypes).sort();
+            
+            sortedTypes.forEach(type => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.setAttribute('data-type', type);
+                btn.textContent = type;
+                typeFiltersContainer.appendChild(btn);
+            });
+        }
+
+        function handleFilterClick(e) {
+            // Remove active class from all buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Add active class to clicked button
+            e.target.classList.add('active');
+            
+            currentFilter = e.target.getAttribute('data-type');
+            applyFilters();
+        }
+
+        function handleSearch() {
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            let filtered = toolsData.tools;
+
+            // Apply type filter
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(tool => 
+                    tool.type && tool.type.includes(currentFilter)
+                );
+            }
+
+            // Apply search filter
+            if (searchTerm) {
+                try {
+                    const regex = new RegExp(searchTerm, 'i');
+                    filtered = filtered.filter(tool => regex.test(tool.name));
+                } catch (e) {
+                    // If regex is invalid, fall back to simple string matching
+                    filtered = filtered.filter(tool => 
+                        tool.name.toLowerCase().includes(searchTerm.toLowerCase())
+                    );
+                }
+            }
+
+            filteredTools = filtered;
+            displayTools(filtered);
+            updateResultsInfo(filtered.length, toolsData.tools.length);
+        }
+
+        function displayTools(tools) {
+            const toolsGrid = document.getElementById('toolsGrid');
+            const noResults = document.getElementById('noResults');
+
+            if (tools.length === 0) {
+                toolsGrid.style.display = 'none';
+                noResults.style.display = 'block';
+                return;
+            }
+
+            toolsGrid.style.display = 'grid';
+            noResults.style.display = 'none';
+
+            toolsGrid.innerHTML = tools.map(tool => `
+                <div class="tool-card">
+                    <div class="tool-name">${tool.name}</div>
+                    <div class="tool-types">
+                        ${tool.type ? 
+                            tool.type.map(type => `<span class="type-badge">${type}</span>`).join('') :
+                            '<span class="type-badge no-type">No Category</span>'
+                        }
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateResultsInfo(filtered, total) {
+            const resultsInfo = document.getElementById('resultsInfo');
+            resultsInfo.innerHTML = `
+                <strong>Showing ${filtered} of ${total} tools</strong>
+                ${currentFilter !== 'all' ? ` | Filtered by: <em>${currentFilter}</em>` : ''}
+            `;
+        }
+
+        // Initialize the app
+        window.addEventListener('DOMContentLoaded', loadToolsData);
+    </script>
+</body>
+</html>
