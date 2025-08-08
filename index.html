@@ -238,25 +238,45 @@
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 
-                const text = await response.text();
+                let text = await response.text();
+                console.log('Raw file content:', text.substring(0, 200)); // Debug log
                 
-                // Parse the JSON with the db= prefix format
-                let jsonText = text.trim();
-                if (jsonText.startsWith('db=')) {
-                    jsonText = jsonText.substring(3);
+                // Clean up the JSON format
+                text = text.trim();
+                
+                // Remove the db= prefix if present
+                if (text.startsWith('db=')) {
+                    text = text.substring(3).trim();
                 }
                 
-                toolsData = JSON.parse(jsonText);
+                // Fix common JSON formatting issues
+                text = text
+                    // Remove trailing commas before closing brackets/braces
+                    .replace(/,(\s*[}\]])/g, '$1')
+                    // Remove any trailing content after the main JSON object
+                    .replace(/}\s*\]\s*}\s*.*$/s, '}]}')
+                    // Ensure proper structure
+                    .replace(/^\s*{\s*"tools":\s*\[\s*/, '{"tools":[')
+                    // Clean up spacing around brackets
+                    .replace(/\[\s+/g, '[')
+                    .replace(/\s+\]/g, ']');
+                
+                console.log('Cleaned JSON:', text.substring(0, 200)); // Debug log
+                
+                toolsData = JSON.parse(text);
                 
                 if (!toolsData || !toolsData.tools || !Array.isArray(toolsData.tools)) {
                     throw new Error('Invalid JSON structure: expected tools array');
                 }
+                
+                console.log(`Loaded ${toolsData.tools.length} tools successfully`);
                 
                 // Initialize the app with loaded data
                 init();
                 
             } catch (error) {
                 console.error('Error loading tools data:', error);
+                console.error('Full error details:', error);
                 showError(`Failed to load tools database: ${error.message}`);
             }
         }
