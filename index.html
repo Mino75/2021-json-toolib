@@ -233,37 +233,15 @@
             showLoading();
             
             try {
-                const response = await fetch('./json-toolib.json');
+                const response = await fetch('json-toolib.json');
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 
-                let text = await response.text();
-                console.log('Raw file content:', text.substring(0, 200)); // Debug log
+                const text = await response.text();
+                console.log('Raw file content:', text.substring(0, 200));
                 
-                // Clean up the JSON format
-                text = text.trim();
-                
-                // Remove the db= prefix if present
-                if (text.startsWith('db=')) {
-                    text = text.substring(3).trim();
-                }
-                
-                // Fix common JSON formatting issues
-                text = text
-                    // Remove trailing commas before closing brackets/braces
-                    .replace(/,(\s*[}\]])/g, '$1')
-                    // Remove any trailing content after the main JSON object
-                    .replace(/}\s*\]\s*}\s*.*$/s, '}]}')
-                    // Ensure proper structure
-                    .replace(/^\s*{\s*"tools":\s*\[\s*/, '{"tools":[')
-                    // Clean up spacing around brackets
-                    .replace(/\[\s+/g, '[')
-                    .replace(/\s+\]/g, ']');
-                
-                console.log('Cleaned JSON:', text.substring(0, 200)); // Debug log
-                
-                toolsData = JSON.parse(text);
+                toolsData = JSON.parse(text.trim());
                 
                 if (!toolsData || !toolsData.tools || !Array.isArray(toolsData.tools)) {
                     throw new Error('Invalid JSON structure: expected tools array');
@@ -276,7 +254,6 @@
                 
             } catch (error) {
                 console.error('Error loading tools data:', error);
-                console.error('Full error details:', error);
                 showError(`Failed to load tools database: ${error.message}`);
             }
         }
@@ -311,7 +288,6 @@
             });
             
             const typeFiltersContainer = document.getElementById('typeFilters');
-            // Clear existing filters
             typeFiltersContainer.innerHTML = '';
             
             const sortedTypes = Array.from(allTypes).sort();
